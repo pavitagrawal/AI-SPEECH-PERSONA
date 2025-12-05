@@ -1,29 +1,52 @@
-"""Simple Murf TTS integration stub.
-
-Provides a placeholder `generate_tts_with_murf` that will be replaced
-with a real Murf API integration later.
-"""
 import os
+import requests
 from typing import Optional
+from dotenv import load_dotenv
+
+load_dotenv()
+
+MURF_API_KEY = os.getenv("MURF_API_KEY")
+MURF_URL = "https://api.murf.ai/v1/speech/generate"
+
+
+# Choose voice by persona
+VOICE_MAP = {
+    "ted": "en-US-natalie",
+    "leader": "en-US-marcus",
+    "teacher": "en-UK-hazel",
+    "default": "en-US-natalie"
+}
 
 
 def generate_tts_with_murf(coaching_text: str, persona: Optional[dict] = None) -> str:
-    """Generate TTS audio for coaching text using Murf (stub).
+    if not MURF_API_KEY:
+        raise RuntimeError("MURF_API_KEY not found in environment")
 
-    This is a placeholder implementation that reads `MURF_API_KEY` from
-    the environment (but does not require it) and returns a dummy audio
-    URL. Replace this with a real Murf API integration when available.
+    persona_id = persona.get("id") if persona else "default"
+    voice_id = VOICE_MAP.get(persona_id, VOICE_MAP["default"])
 
-    Args:
-        coaching_text: Text to synthesize.
-        persona: Optional persona metadata (ignored for now).
+    payload = {
+        "voiceId": voice_id,
+        "text": coaching_text,
+        "format": "mp3"
+    }
 
-    Returns:
-        str: URL to the generated audio file.
-    """
-    murf_key = os.getenv("MURF_API_KEY")
-    # Logically we would use murf_key to authenticate — for now we ignore it.
-    _ = murf_key
+    headers = {
+        "Content-Type": "application/json",
+        "api-key": MURF_API_KEY
+    }
 
-    # Return a stable dummy MP3 URL for development and testing.
-    return "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+    response = requests.post(MURF_URL, json=payload, headers=headers, timeout=30)
+
+    if response.status_code != 200:
+        raise RuntimeError(f"Murf API Error {response.status_code}: {response.text}")
+
+    data = response.json()
+
+    # Murf returns: { "audioFile": "https://....mp3" }
+    audio_url = data.get("audioFile") or data.get("audioUrl")
+
+    if not audio_url:
+        raise RuntimeError("No audio URL returned from Murf")
+
+    return audio_url

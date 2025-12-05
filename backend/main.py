@@ -15,17 +15,22 @@ import uuid
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 from pydantic import BaseModel, Field
 
 app = FastAPI(title="AI Speech Persona Builder - Backend")
 
-# Allow all origins for now; we'll restrict this later in production.
+# CORS: allow the frontend origin (can be overridden via FRONTEND_ORIGIN env var)
+FRONTEND_ORIGIN = os.getenv("FRONTEND_ORIGIN", "http://localhost:3000")
 app.add_middleware(
-	CORSMiddleware,
-	allow_origins=["*"],
-	allow_credentials=True,
-	allow_methods=["*"],
-	allow_headers=["*"],
+    CORSMiddleware,
+    allow_origins=[FRONTEND_ORIGIN],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
