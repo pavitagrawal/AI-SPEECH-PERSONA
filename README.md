@@ -2,6 +2,9 @@
 
 AI-powered speech coaching app using Gemini for analysis and Murf for TTS. Records speech, analyzes pace/clarity/emotions, and provides personalized feedback with scores, tips, and audio coaching.
 
+🎥 **Demo Video:**  
+https://drive.google.com/file/d/1i-RP_z7S5lsmnEoNLZqL-tKWx7nPDDU8/view?usp=sharing
+
 ## Services
 - Backend: `backend/` (FastAPI). Runs on port `8000` by default.
 - Frontend: `frontend/` (Next.js). Runs on port `3000` by default.
